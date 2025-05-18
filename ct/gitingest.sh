@@ -7,8 +7,6 @@ source <(curl -fsSL https://raw.githubusercontent.com/1bk/ProxmoxVE/feature%2Fad
 
 # App Default Values
 APP="GitIngest"
-# Ensure app is defined properly to match APP in lowercase
-export app="gitingest"
 var_tags="${var_tags:-ingest;code-tools}"
 var_cpu="${var_cpu:-1}"
 var_ram="${var_ram:-1024}"
