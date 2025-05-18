@@ -47,10 +47,13 @@ $STD cp /opt/gitingest-source/requirements.txt /opt/gitingest/
 cd /opt/gitingest
 $STD pip install --no-cache-dir -r requirements.txt
 
+# Get the container IP
+CONTAINER_IP=$(hostname -I | awk '{print $1}')
+
 # Create the .env file with default settings
 cat <<EOF > /opt/gitingest/.env
 # Server configuration
-ALLOWED_HOSTS="gitingest.com,*.gitingest.com,localhost,127.0.0.1"
+ALLOWED_HOSTS="$CONTAINER_IP,localhost,127.0.0.1"
 EOF
 
 # Ask for custom domain settings
@@ -58,10 +61,10 @@ read -p "${TAB3}Do you want to configure custom domain settings? (y/N): " domain
 if [[ "$domain_choice" =~ ^[Yy]$ ]]; then
   read -p "${TAB3}Enter your custom domain (e.g., example.com): " custom_domain
   if [ ! -z "$custom_domain" ]; then
-    # Update the ALLOWED_HOSTS with custom domain
-    sed -i "s|ALLOWED_HOSTS=\".*\"|ALLOWED_HOSTS=\"$custom_domain,localhost,127.0.0.1\"|" /opt/gitingest/.env
+    # Update the ALLOWED_HOSTS with custom domain, wildcard subdomains, and keep the IP address
+    sed -i "s|ALLOWED_HOSTS=\".*\"|ALLOWED_HOSTS=\"$custom_domain,*.$custom_domain,$CONTAINER_IP,localhost,127.0.0.1\"|" /opt/gitingest/.env
     
-    echo "Custom domain configured: $custom_domain"
+    echo "Custom domain configured: $custom_domain and its subdomains (along with $CONTAINER_IP)"
   fi
 fi
 
@@ -99,7 +102,7 @@ msg_ok "Set up GitIngest v${RELEASE}"
 {
   echo "GitIngest Installation Information"
   echo "--------------------------------"
-  echo "Access URL: http://$(hostname -I | awk '{print $1}'):8000"
+  echo "Access URL: http://$CONTAINER_IP:8000"
   echo "To update: Run the update function in the container"
   echo "Version: ${RELEASE}"
 } > ~/GitIngest.creds

@@ -7,6 +7,8 @@ source <(curl -fsSL https://raw.githubusercontent.com/1bk/ProxmoxVE/feature%2Fad
 
 # App Default Values
 APP="GitIngest"
+# Ensure app is defined properly to match APP in lowercase
+export app="gitingest"
 var_tags="${var_tags:-ingest;code-tools}"
 var_cpu="${var_cpu:-1}"
 var_ram="${var_ram:-1024}"
@@ -69,10 +71,13 @@ function update_script() {
     if [ -f /opt/gitingest-source/.env ]; then
       cp /opt/gitingest-source/.env /opt/gitingest/
     else
+      # Get the container IP
+      CONTAINER_IP=$(hostname -I | awk '{print $1}')
+      
       # Create default .env file if none exists
       cat <<EOF > /opt/gitingest/.env
 # Server configuration
-ALLOWED_HOSTS="gitingest.com,*.gitingest.com,localhost,127.0.0.1"
+ALLOWED_HOSTS="$CONTAINER_IP,localhost,127.0.0.1"
 EOF
     fi
     
