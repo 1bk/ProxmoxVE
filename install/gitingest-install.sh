@@ -65,12 +65,11 @@ if [[ "$domain_choice" =~ ^[Yy]$ ]]; then
   if [ ! -z "$custom_domain" ]; then
     # Update the ALLOWED_HOSTS with custom domain
     sed -i "s|ALLOWED_HOSTS=\".*\"|ALLOWED_HOSTS=\"$custom_domain,*.$custom_domain,$CONTAINER_IP,localhost,127.0.0.1\"|" /opt/gitingest/.env
-    
-    echo -e "${TAB3}Custom domain configured: $custom_domain"
+
+    echo -e "${TAB3}Custom domain configured: $custom_domain and its subdomains (along with $CONTAINER_IP)"
     echo
-    echo -e "${TAB3}Note: If you experience display issues in the terminal, you can adjust"
-    echo -e "${TAB3}your terminal settings or restart the container after installation."
-    echo -e "${TAB3}Run 'systemctl restart gitingest' to apply changes."
+    echo -e "${TAB3}Note: If you have issues accessing the web UI, edit"
+    echo -e "${TAB3}/opt/gitingest/.env and restart with 'systemctl restart gitingest'"
   fi
 fi
 
