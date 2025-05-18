@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-source <(curl -fsSL https://raw.githubusercontent.com/1bk/ProxmoxVE/feature/add-gitingest/misc/build.func)
+source <(curl -fsSL https://raw.githubusercontent.com/1bk/ProxmoxVE/feature%2Fadd-gitingest/misc/build.func)
 # Copyright (c) 2021-2025 community-scripts ORG
 # Author: 1bk
 # License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
@@ -52,21 +52,36 @@ function update_script() {
     
     # Update application
     msg_info "Installing new version"
-    # Clone the repository and copy the correct directories
-    $STD git clone https://github.com/cyclotruc/gitingest.git /opt/gitingest-clone
+    $STD git clone https://github.com/cyclotruc/gitingest.git /opt/gitingest-source
+    
+    # Preserve the .env file
+    if [ -f /opt/gitingest/.env ]; then
+      cp /opt/gitingest/.env /opt/gitingest-source/
+    fi
+    
+    # Replace installation with new version
     rm -rf /opt/gitingest
     mkdir -p /opt/gitingest
-    $STD cp -r /opt/gitingest-clone/src/* /opt/gitingest/
-    $STD cp /opt/gitingest-clone/requirements.txt /opt/gitingest/
-    $STD rm -rf /opt/gitingest-clone
+    $STD cp -r /opt/gitingest-source/src/* /opt/gitingest/
+    $STD cp /opt/gitingest-source/requirements.txt /opt/gitingest/
     
+    # Restore the .env file
+    if [ -f /opt/gitingest-source/.env ]; then
+      cp /opt/gitingest-source/.env /opt/gitingest/
+    else
+      # Create default .env file if none exists
+      cat <<EOF > /opt/gitingest/.env
+# Server configuration
+ALLOWED_HOSTS="gitingest.com,*.gitingest.com,localhost,127.0.0.1"
+EOF
+    fi
+    
+    # Install Python requirements
     cd /opt/gitingest
     $STD pip install --no-cache-dir -r requirements.txt
     
-    # Copy configuration from backup if it exists
-    if [ -f "$BACKUP_DIR/.env" ]; then
-      cp "$BACKUP_DIR/.env" /opt/gitingest/
-    fi
+    # Clean up source files
+    rm -rf /opt/gitingest-source
     
     # Start service
     msg_info "Starting GitIngest service"

@@ -34,16 +34,17 @@ if [ -z "$RELEASE" ]; then
 fi
 
 # Clone the repository
-$STD git clone https://github.com/cyclotruc/gitingest.git /opt/gitingest-clone
-$STD mkdir -p /opt/gitingest
-$STD cp -r /opt/gitingest-clone/src/* /opt/gitingest/
-$STD cp /opt/gitingest-clone/requirements.txt /opt/gitingest/
-$STD rm -rf /opt/gitingest-clone
+$STD git clone https://github.com/cyclotruc/gitingest.git /opt/gitingest-source
 
-# Set up environment
-cd /opt/gitingest
+# Set up the target directory
+mkdir -p /opt/gitingest
+
+# Copy the correct files
+$STD cp -r /opt/gitingest-source/src/* /opt/gitingest/
+$STD cp /opt/gitingest-source/requirements.txt /opt/gitingest/
 
 # Install Python requirements
+cd /opt/gitingest
 $STD pip install --no-cache-dir -r requirements.txt
 
 # Create the .env file with default settings
@@ -57,8 +58,9 @@ read -p "${TAB3}Do you want to configure custom domain settings? (y/N): " domain
 if [[ "$domain_choice" =~ ^[Yy]$ ]]; then
   read -p "${TAB3}Enter your custom domain (e.g., example.com): " custom_domain
   if [ ! -z "$custom_domain" ]; then
-    # Update the ALLOWED_HOSTS with custom domain (no spaces after commas)
+    # Update the ALLOWED_HOSTS with custom domain
     sed -i "s|ALLOWED_HOSTS=\".*\"|ALLOWED_HOSTS=\"$custom_domain,localhost,127.0.0.1\"|" /opt/gitingest/.env
+    
     echo "Custom domain configured: $custom_domain"
   fi
 fi
@@ -85,6 +87,9 @@ EOF
 # Enable and start the service
 systemctl enable -q --now gitingest
 msg_ok "Created and started GitIngest service"
+
+# Clean up source files
+rm -rf /opt/gitingest-source
 
 # Save version info
 echo "${RELEASE}" > /opt/gitingest_version.txt
