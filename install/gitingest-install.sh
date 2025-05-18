@@ -57,14 +57,20 @@ ALLOWED_HOSTS="$CONTAINER_IP,localhost,127.0.0.1"
 EOF
 
 # Ask for custom domain settings
-read -p "${TAB3}Do you want to configure custom domain settings? (y/N): " domain_choice
+echo -e "${TAB3}Do you want to configure custom domain settings? (y/N): "
+read -r domain_choice
 if [[ "$domain_choice" =~ ^[Yy]$ ]]; then
-  read -p "${TAB3}Enter your custom domain (e.g., example.com): " custom_domain
+  echo -e "${TAB3}Enter your custom domain (e.g., example.com): "
+  read -r custom_domain
   if [ ! -z "$custom_domain" ]; then
-    # Update the ALLOWED_HOSTS with custom domain, wildcard subdomains, and keep the IP address
-    sed -i "s|ALLOWED_HOSTS=\".*\"|ALLOWED_HOSTS=\"$custom_domain,*.$custom_domain,$CONTAINER_IP,localhost,127.0.0.1\"|" /opt/gitingest/.env
+    # Update the ALLOWED_HOSTS with custom domain
+    sed -i "s|ALLOWED_HOSTS=\".*\"|ALLOWED_HOSTS=\"$custom_domain,localhost,127.0.0.1\"|" /opt/gitingest/.env
     
-    echo "Custom domain configured: $custom_domain and its subdomains (along with $CONTAINER_IP)"
+    echo -e "${TAB3}Custom domain configured: $custom_domain"
+    echo
+    echo -e "${TAB3}Note: If you experience display issues in the terminal, you can adjust"
+    echo -e "${TAB3}your terminal settings or restart the container after installation."
+    echo -e "${TAB3}Run 'systemctl restart gitingest' to apply changes."
   fi
 fi
 
