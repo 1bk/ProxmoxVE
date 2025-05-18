@@ -34,7 +34,11 @@ if [ -z "$RELEASE" ]; then
 fi
 
 # Clone the repository
-$STD git clone https://github.com/cyclotruc/gitingest.git /opt/gitingest
+$STD git clone https://github.com/cyclotruc/gitingest.git /opt/gitingest-clone
+$STD mkdir -p /opt/gitingest
+$STD cp -r /opt/gitingest-clone/src/* /opt/gitingest/
+$STD cp /opt/gitingest-clone/requirements.txt /opt/gitingest/
+$STD rm -rf /opt/gitingest-clone
 
 # Set up environment
 cd /opt/gitingest
@@ -45,7 +49,7 @@ $STD pip install --no-cache-dir -r requirements.txt
 # Create the .env file with default settings
 cat <<EOF > /opt/gitingest/.env
 # Server configuration
-ALLOWED_HOSTS="gitingest.com, *.gitingest.com, localhost, 127.0.0.1"
+ALLOWED_HOSTS="gitingest.com,*.gitingest.com,localhost,127.0.0.1"
 EOF
 
 # Ask for custom domain settings
@@ -53,9 +57,8 @@ read -p "${TAB3}Do you want to configure custom domain settings? (y/N): " domain
 if [[ "$domain_choice" =~ ^[Yy]$ ]]; then
   read -p "${TAB3}Enter your custom domain (e.g., example.com): " custom_domain
   if [ ! -z "$custom_domain" ]; then
-    # Update the ALLOWED_HOSTS with custom domain
-    sed -i "s|ALLOWED_HOSTS=\".*\"|ALLOWED_HOSTS=\"$custom_domain, localhost, 127.0.0.1\"|" /opt/gitingest/.env
-    
+    # Update the ALLOWED_HOSTS with custom domain (no spaces after commas)
+    sed -i "s|ALLOWED_HOSTS=\".*\"|ALLOWED_HOSTS=\"$custom_domain,localhost,127.0.0.1\"|" /opt/gitingest/.env
     echo "Custom domain configured: $custom_domain"
   fi
 fi
