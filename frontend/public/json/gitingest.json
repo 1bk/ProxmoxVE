@@ -1,0 +1,37 @@
+{
+    "name": "GitIngest",
+    "slug": "gitingest",
+    "categories": [
+        20
+    ],
+    "date_created": "2025-05-18",
+    "type": "ct",
+    "updateable": true,
+    "privileged": false,
+    "interface_port": 8000,
+    "documentation": "https://github.com/cyclotruc/gitingest/blob/main/README.md",
+    "website": "https://gitingest.com",
+    "logo": "https://github.com/cyclotruc/gitingest/blob/main/src/static/favicon-64.png",
+    "description": "Turn any Git repository into a prompt-friendly text ingest for LLMs. Optimized output format for LLM prompts with statistics about file structure, size, and token count.",
+    "install_methods": [
+        {
+            "type": "default",
+            "script": "ct/gitingest.sh",
+            "resources": {
+                "cpu": 1,
+                "ram": 1024,
+                "hdd": 4,
+                "os": "debian",
+                "version": "12"
+            }
+        }
+    ],
+    "default_credentials": {
+        "username": null,
+        "password": null
+    },
+    "notes": [
+        "After installation, GitIngest will be available at http://YOUR-IP:8000",
+        "You can customize the allowed hosts by editing the .env file in /opt/gitingest/"
+    ]
+}
